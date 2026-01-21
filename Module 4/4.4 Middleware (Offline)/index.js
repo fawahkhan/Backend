@@ -14,24 +14,50 @@ const express = require ('express')
 const app = express()
 
 //fn that returns a boolean if your age is 14 or not
-function isOldEnough(age){
+// function isOldEnough(age){
+//     if (age>=14){
+//         return true
+//     }else{
+//         return false
+//     } 
+// }
+
+
+// app.get('/' , function(req,res){
+//     if(isOldEnough(req.query.age)){
+//        res.json({
+//         msg: "You can ride the ride" 
+//     }) 
+//     }else{
+//         res.status(411).json({
+//             msg : "Sorry you are underage"
+//         })
+//     }
+// })
+
+// using middlewares to make the same checkpoint of age
+//calling the next fn takes you to the next middleware.
+function isOldEnoughMiddleware(req,res,next){
+    const age = req.query.age
     if (age>=14){
-        return true
+        next();   //If you pass then next function takes you forward . here all the verification checks are done by the middleware and after that no hassle of any if else while riding the rides .
     }else{
-        return false
+        res.json({
+            msg: "Sorry you are underage"
+        })
     } 
 }
-
-app.get('/' , function(req,res){
-    if(isOldEnough(req.query.age)){
+// ab hame if else ki need nhi padegi app.get me  baar baar check nhi krna ticket ... bas middleware ek bari check krlega aur aram se fr jhula jhhulo
+app.get('/ride2' , isOldEnoughMiddleware, function(req,res){
        res.json({
-        msg: "You can ride the ride" 
+        msg: "You can ride the ride-2" 
     }) 
-    }else{
-        res.status(411).json({
-            msg : "Sorry you are underage"
-        })
-    }
 })
+app.get('/ride1' ,isOldEnoughMiddleware , function(req,res){
+        res.json({
+            msg: "You can ride the ride-1" 
+    })
+})
+
 
 app.listen(3000)
