@@ -60,6 +60,30 @@ app.post("/signin" , function(req,res){
     }
 })
 
+// now i want that when a user logs in, then the app should show user details when it recognises you by your token
+// token bhejna padega taki server apko recognise krpaye
+app.get("/me" , function(req,res){
+    const token = req.headers.token  //check the token from the headers
+    const foundUser = null ;
+
+    for (let i = 0 ; i< users.length ; i++){
+        if(users[i].token === token){
+            foundUser = users[i]
+        }
+    }
+    if(foundUser){
+        res.json({
+            username: foundUser.username ,
+            password: foundUser.password
+        })
+        
+    }else{
+        res.json({
+            msg: "token invalid"
+        })
+    }
+})
+
 
 
 //listening on port 3000
