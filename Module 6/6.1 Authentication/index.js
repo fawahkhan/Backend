@@ -1,5 +1,7 @@
 // we will be studying about authentication using JWTs and web tokens
 const express = require ("express")
+const jwt = require ("jsonwebtoken")
+const JWT_SECRET = "fawahkhanisahuman"
 
 const app = express()
 app.use(express.json())
@@ -7,23 +9,23 @@ app.use(express.json())
 const users = []
 
 
-//function to generate random token
-function generateToken(){
-    let options = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-    '0','1','2','3','4','5','6','7','8','9']
-    let token = ''
-    for(let i=0; i<32; i++){
-        token += options[Math.floor(Math.random() * options.length)]
-    }
-    return token
-}
+//function to generate random token .... now we are using jwt so no need to generate our own token. thus removing this function.
+// function generateToken(){
+//     let options = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+//     'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+//     '0','1','2','3','4','5','6','7','8','9']
+//     let token = ''
+//     for(let i=0; i<32; i++){
+//         token += options[Math.floor(Math.random() * options.length)]
+//     }
+//     return token
+// }
 
 // signup
 app.post("/signup" , function(req,res){
     //we want to add new users to the in memory variable that we made 
-    const username = req.query.username
-    const password = req.query.password
+    const username = req.body.username
+    const password = req.body.password
 
     users.push({
         username,
@@ -37,8 +39,8 @@ app.post("/signup" , function(req,res){
 
 // signin
 app.post("/signin" , function(req,res){
-    const username = req.query.username
-    const password = req.query.password
+    const username = req.body.username
+    const password = req.body.password
 
     const foundUser = users.find((u) => {
         if (u.username === username && u.password === password){
@@ -48,8 +50,11 @@ app.post("/signin" , function(req,res){
         }    
     })
     if (foundUser){
-        const token = generateToken() ;
-        foundUser.token = token   //to store the token in the array
+        const token = jwt.sign({
+            username: username
+        }, JWT_SECRET) //convert the username into a jwt using JWT_SECRET ;
+            //NOW WE DONT HAVE TO STORE TOKEN IN MEMORY SINCE WE ARE USING JWTs
+        // foundUser.token = token   //to store the token in the array
         res.json({
             token : token 
         })
@@ -63,11 +68,14 @@ app.post("/signin" , function(req,res){
 // now i want that when a user logs in, then the app should show user details when it recognises you by your token
 // token bhejna padega taki server apko recognise krpaye
 app.get("/me" , function(req,res){
-    const token = req.headers.token  //check the token from the headers
-    const foundUser = null ;
+    const token = req.headers.token  //check the token from the headers //now we will get it from jwt
+    const decodedInformation = jwt.verify(token , JWT_SECRET) //    {username: "fawah@gmail.com"}
+    const username = decodedInformation.username
+    
+    let foundUser = null ;
 
     for (let i = 0 ; i< users.length ; i++){
-        if(users[i].token === token){
+        if(users[i].username == username){
             foundUser = users[i]
         }
     }
