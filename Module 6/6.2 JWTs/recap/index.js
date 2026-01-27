@@ -7,8 +7,12 @@ const app = express()
 app.use(express.json())
 
 const users = []
+function logger(req, res , next){
+    console.log(`${req.method} request came`)  //this tells us what kind of request came , get post etc.
+    next()
+}
 
-app.post("/signup",function(req,res){
+app.post("/signup",logger , function(req,res){
     const username = req.body.username 
     const password = req.body.password
     
@@ -22,7 +26,7 @@ app.post("/signup",function(req,res){
     })
 })
 
-app.post("/signin",function(req,res){
+app.post("/signin", logger, function(req,res){
     const username = req.body.username 
     const password = req.body.password
     let foundUser = null ;
@@ -49,16 +53,33 @@ app.post("/signin",function(req,res){
     
 })
 
-app.get("/me",function(req,res){
-    const token = req.headers.token 
-
+//we need to create a middleware for repeated codes and logics .
+function auth(req,res,next){
+    const token = req.headers.token
     const decodeData = jwt.verify(token , JWT_SECRET)
-    const username = decodeData.username
+    
     if(decodeData.username){
+        req.username = decodeData.username
+        next()
+    }else{
+        res.json({
+            msg: "invalid credentials"
+        })
+    }
+    
+}
+
+//added middleware named auth for the authentication.
+app.get("/me",logger, auth, function(req,res){
+    //const token = req.headers.token 
+
+    //const decodeData = jwt.verify(token , JWT_SECRET)
+    //const username = decodeData.username
+    //if(decodeData.username){
         let foundUser = null ;
 
         for (let i = 0 ; i< users.length ; i++){
-            if(users[i].username == username){
+            if(users[i].username == req.username){
                 foundUser = users[i]
             }
         }
@@ -66,7 +87,7 @@ app.get("/me",function(req,res){
             username: foundUser.username,
             password: foundUser.password
         })
-    }
+    //}
     
     
 })
