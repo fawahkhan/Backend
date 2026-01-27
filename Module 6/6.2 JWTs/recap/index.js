@@ -23,6 +23,8 @@ app.post("/signup",function(req,res){
 })
 
 app.post("/signin",function(req,res){
+    const username = req.body.username 
+    const password = req.body.password
     let foundUser = null ;
 
     for (let i = 0 ; i< users.length ; i++){
@@ -48,12 +50,25 @@ app.post("/signin",function(req,res){
 })
 
 app.get("/me",function(req,res){
+    const token = req.headers.token 
+
+    const decodeData = jwt.verify(token , JWT_SECRET)
+    const username = decodeData.username
+    if(decodeData.username){
+        let foundUser = null ;
+
+        for (let i = 0 ; i< users.length ; i++){
+            if(users[i].username == username){
+                foundUser = users[i]
+            }
+        }
+        res.json({
+            username: foundUser.username,
+            password: foundUser.password
+        })
+    }
     
     
-    
-    res.json({
-        msg : "User is"
-    })
 })
 
 
