@@ -12,6 +12,11 @@ function logger(req, res , next){
     next()
 }
 
+//sending the data in html to our backend and hosting it on the same port localhost 3000
+app.get("/" , function(req,res){
+    res.sendFile(__dirname + "/public/index.html")
+})
+
 app.post("/signup",logger , function(req,res){
     const username = req.body.username 
     const password = req.body.password
@@ -43,8 +48,9 @@ app.post("/signin", logger, function(req,res){
         return
     }else{
         const token = jwt.sign({
-            username
+            username : foundUser.username
         } , JWT_SECRET )
+        res.header
         res.json({
             token : token
         })
@@ -83,10 +89,19 @@ app.get("/me",logger, auth, function(req,res){
                 foundUser = users[i]
             }
         }
-        res.json({
-            username: foundUser.username,
-            password: foundUser.password
-        })
+        
+        if(!foundUser){
+            res.json({
+                msg: "User not found"
+            })
+            return
+        }else{
+            // we can send the user data
+            res.json({
+                username : foundUser.username ,
+                password : foundUser.password
+            })
+        }
     //}
     
     
