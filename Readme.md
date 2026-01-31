@@ -41,16 +41,11 @@ Note: till 26 i have to cover till 7.1 starting today.
 
 - 8.1 Backend of Course-Selling App – Part 1
 - 8.2 Backend of Course-Selling App – Part 2
-
 ---
 
 Progress checklist
 
-- [x] Create backend folder and initial notes
-- [ ] Complete Node.js basics (first 2 weeks)
-- [ ] Cover monggodb and authentication
-- [ ] Build project connecting frontend and backend
-
-
-22 23 24 25 26 
- 5  5  5  5  5
+- [✓] Create backend folder and initial notes
+- [✓] Complete Node.js basics (first 2 weeks)
+- [✓] Cover monggodb and authentication
+- [✓] Build project connecting frontend and backend
