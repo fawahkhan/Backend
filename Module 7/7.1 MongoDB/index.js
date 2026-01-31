@@ -45,10 +45,10 @@ app.post('/signin', async function(req, res){
         const token = jwt.sign({
             //what json data do we want to store here. earlier we stored username.
             //but this time if we are aving the id then we will get to know that who is the user
-            id: user._id 
-        })
+            id: user._id.toString()  //since user._id is an object and need to be converted to a string .
+        }, JWT_SECRET)
         res.json({
-
+            token,
         })
     }else{
         res.status(403).json({
@@ -58,12 +58,43 @@ app.post('/signin', async function(req, res){
 }); 
 
 //to create a todo
-app.post('/todo', function(req, res){
+app.post('/todo', auth, function(req, res){
+    const userId = req.userId ;
+    const title = req.body.title;
+    TodoModel.create({
+        title,
+        userId
+    })
 
+    res.json({
+        userId: userId
+    })
 });
 
-app.get('/todos', function(req, res){
-
+app.get('/todos', auth, async function(req, res){
+    const userId = req.userId ;
+    const todos = await TodoModel.find({
+        userId : userId
+    })
+    res.json({
+        todos
+    })
 });
+
+//adding middleware for authorization
+function auth(req, res, next){
+    const token = req.headers.token // headers me check kro jo token aya
+
+    const  decodedData = jwt.verify(token, JWT_SECRET) //NOW VERIFY THAT IS THE GIVEN TOKEN TRUE FOR THE GIVEN JWTSECRET KEY.
+
+    if(decodedData){
+        req.userId = decodedData.id 
+        next()
+    }else{
+        res.status(403).json({
+            msg : "invalid credentials "
+        })
+    }
+}
 
 app.listen(3000)
